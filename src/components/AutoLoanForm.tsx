@@ -1,17 +1,18 @@
 import React from "react";
-import { TextField } from "@material-ui/core";
+import { TextField, Button } from "@material-ui/core";
+import { AutoLoanApplication } from "../Types";
+import { autoLoan } from "../Fetch";
+import { NewAccountForm } from "./NewAccountForm";
+import { LoanDenialPage } from "./LoanDenialPage";
 
-interface IAutoLoanProps {}
+interface IAutoLoanProps {
+  onSubmit: (loan: AutoLoanApplication) => void;
+}
 
-type LoanState = {
-  purchacePrice?: number | undefined;
-  carMake?: string | undefined;
-  carModel?: string | undefined;
-  income?: number | undefined;
-  creditScore?: number | undefined;
-};
+type FormState = AutoLoanApplication & {};
+type InputFields = keyof AutoLoanApplication;
 
-const fields: Array<keyof LoanState> = [
+const fields: Array<InputFields> = [
   "purchacePrice",
   "carMake",
   "carModel",
@@ -19,7 +20,7 @@ const fields: Array<keyof LoanState> = [
   "creditScore",
 ];
 
-function getLabelForInput(field: keyof LoanState): string {
+function getLabelForInput(field: InputFields): string {
   switch (field) {
     case "carMake":
       return "Make";
@@ -34,7 +35,7 @@ function getLabelForInput(field: keyof LoanState): string {
   }
 }
 
-function getInputType(field: keyof LoanState): "number" | "text" {
+function getInputType(field: InputFields): "number" | "text" {
   switch (field) {
     case "carMake":
     case "carModel":
@@ -46,9 +47,9 @@ function getInputType(field: keyof LoanState): "number" | "text" {
   }
 }
 
-type Action = { type: "fieldUpdate"; key: keyof LoanState; e: any };
+type Action = { type: "fieldUpdate"; key: InputFields; e: any };
 
-function reducer(state: LoanState, action: Action): LoanState {
+function reducer(state: FormState, action: Action): FormState {
   switch (action.type) {
     case "fieldUpdate":
       return { ...state, [action.key]: action.e?.target?.value };
@@ -58,7 +59,7 @@ function reducer(state: LoanState, action: Action): LoanState {
 export const AutoLoanForm: React.FC<IAutoLoanProps> = (props) => {
   const [state, dispatch] = React.useReducer(reducer, {});
 
-  function onInputChange(event: any, key: keyof LoanState): void {
+  function onInputChange(event: any, key: InputFields): void {
     dispatch({ type: "fieldUpdate", key, e: event });
   }
 
@@ -75,6 +76,7 @@ export const AutoLoanForm: React.FC<IAutoLoanProps> = (props) => {
           />
         );
       })}
+      <Button onClick={() => props.onSubmit(state)}>Submit</Button>
     </div>
   );
 };

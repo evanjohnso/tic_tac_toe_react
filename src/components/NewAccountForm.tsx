@@ -31,6 +31,7 @@ export const NewAccountForm: React.FC<INewAccountFormProps> = (props) => {
         helperText={"Passwords do not match"}
         value={confirmPassword}
         onChange={(e) => setConfirmPassword(e.target.value)}
+        onPaste={(e) => e.preventDefault()}
         type={"password"}
       />
     </div>
