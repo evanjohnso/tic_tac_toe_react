@@ -5,11 +5,11 @@ export function canCustomerAffordLoan(
   carPrice?: number
 ): boolean {
   if (income && carPrice) {
-    return carPrice * 5 > income; // must be 1/5 of annual income
+    return carPrice * 5 < income; // must be 1/5 of annual income
   }
   return false;
 }
 
 export function isValidCreditScore(score?: number): boolean {
-  return score ? score < minimumCreditScore : false;
+  return score ? score >= minimumCreditScore : false;
 }

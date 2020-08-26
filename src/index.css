@@ -59,3 +59,9 @@ ul {
   display: flex;
   flex-direction: row;
 }
+
+.primary-button {
+  background-color: #6dbcdb !important;
+  color: white !important;
+  width: 30px !important;
+}

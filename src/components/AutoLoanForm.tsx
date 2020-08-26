@@ -1,9 +1,7 @@
+import { Button, TextField } from "@material-ui/core";
 import React from "react";
-import { TextField, Button } from "@material-ui/core";
 import { AutoLoanApplication } from "../Types";
-import { autoLoan } from "../Fetch";
-import { NewAccountForm } from "./NewAccountForm";
-import { LoanDenialPage } from "./LoanDenialPage";
+import { CreditScoreSlider } from "./CreditScoreSlider";
 
 interface IAutoLoanProps {
   onSubmit: (loan: AutoLoanApplication) => void;
@@ -47,25 +45,41 @@ function getInputType(field: InputFields): "number" | "text" {
   }
 }
 
-type Action = { type: "fieldUpdate"; key: InputFields; e: any };
+type Action = { type: "fieldUpdate"; key: InputFields; value: any };
 
 function reducer(state: FormState, action: Action): FormState {
   switch (action.type) {
     case "fieldUpdate":
-      return { ...state, [action.key]: action.e?.target?.value };
+      // this is strange, shouldnt have to do this transformation
+      const value =
+        getInputType(action.key) == "number"
+          ? Number(action.value)
+          : action.value;
+      return { ...state, [action.key]: value };
   }
 }
 
+function isValidForm(state: FormState): boolean {
+  // valid if no fields are empty
+  return !fields.map((f) => Boolean(state[f])).includes(false);
+}
 export const AutoLoanForm: React.FC<IAutoLoanProps> = (props) => {
   const [state, dispatch] = React.useReducer(reducer, {});
 
-  function onInputChange(event: any, key: InputFields): void {
-    dispatch({ type: "fieldUpdate", key, e: event });
+  function onInputChange(e: any, key: InputFields): void {
+    dispatch({ type: "fieldUpdate", key, value: e.target.value });
+  }
+
+  function onSliderChange(val: number): void {
+    dispatch({ type: "fieldUpdate", key: "creditScore", value: val });
   }
 
   return (
-    <div className="column">
+    <div className="column" style={{ width: "30%" }}>
       {fields.map((field) => {
+        if (field === "creditScore") {
+          return <CreditScoreSlider onChange={onSliderChange} />;
+        }
         return (
           <TextField
             key={field}
@@ -76,7 +90,15 @@ export const AutoLoanForm: React.FC<IAutoLoanProps> = (props) => {
           />
         );
       })}
-      <Button onClick={() => props.onSubmit(state)}>Submit</Button>
+      <div className="row">
+        <Button
+          className="primary-button"
+          onClick={() => props.onSubmit(state)}
+          disabled={!isValidForm(state)}
+        >
+          Submit
+        </Button>
+      </div>
     </div>
   );
 };

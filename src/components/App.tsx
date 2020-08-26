@@ -1,6 +1,6 @@
 import * as React from "react";
 import { autoLoan } from "../Fetch";
-import { AutoLoanApplication } from "../Types";
+import { AutoLoanApplication, LoanApplicationResponse } from "../Types";
 import { AutoLoanForm } from "./AutoLoanForm";
 import { LoanDenialPage } from "./LoanDenialPage";
 import { NewAccountForm } from "./NewAccountForm";
@@ -8,23 +8,21 @@ import { NewAccountForm } from "./NewAccountForm";
 type FormStatus = "pending" | "approved" | "denied";
 
 export const App: React.FC = (props) => {
-  const [status, setStatus] = React.useState<FormStatus>("pending");
+  const [response, setResponse] = React.useState<
+    LoanApplicationResponse | undefined
+  >(undefined);
 
   function handleSubmit(loan: AutoLoanApplication): void {
-    autoLoan(loan).then((r) => {
-      if (r.approved) {
-        setStatus("approved");
-      } else {
-        setStatus("denied");
-      }
-    });
+    autoLoan(loan).then(setResponse);
   }
 
   return (
     <div className={"column"}>
-      {status == "pending" && <AutoLoanForm onSubmit={handleSubmit} />}
-      {status == "approved" && <NewAccountForm />}
-      {status == "denied" && <LoanDenialPage />}
+      {response == undefined && <AutoLoanForm onSubmit={handleSubmit} />}
+      {response?.approved && <NewAccountForm />}
+      {response && !response.approved && (
+        <LoanDenialPage response={response!} />
+      )}
     </div>
   );
 };
