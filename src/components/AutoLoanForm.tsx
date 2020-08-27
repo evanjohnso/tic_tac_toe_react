@@ -1,8 +1,8 @@
-import { Button, TextField } from "@material-ui/core";
+import { TextField } from "@material-ui/core";
 import React from "react";
 import { AutoLoanApplication } from "../Types";
-import { CreditScoreSlider } from "./CreditScoreSlider";
-
+import { Button } from "./Button";
+import { CreditScoreSlider, creditScore } from "./CreditScoreSlider";
 interface IAutoLoanProps {
   onSubmit: (loan: AutoLoanApplication) => void;
 }
@@ -45,6 +45,10 @@ function getInputType(field: InputFields): "number" | "text" {
   }
 }
 
+const initialState: FormState = {
+  creditScore: creditScore.lowerBound, // initialize credit score for slider consistency
+};
+
 type Action = { type: "fieldUpdate"; key: InputFields; value: any };
 
 function reducer(state: FormState, action: Action): FormState {
@@ -64,7 +68,7 @@ function isValidForm(state: FormState): boolean {
   return !fields.map((f) => Boolean(state[f])).includes(false);
 }
 export const AutoLoanForm: React.FC<IAutoLoanProps> = (props) => {
-  const [state, dispatch] = React.useReducer(reducer, {});
+  const [state, dispatch] = React.useReducer(reducer, initialState);
 
   function onInputChange(e: any, key: InputFields): void {
     dispatch({ type: "fieldUpdate", key, value: e.target.value });
@@ -90,15 +94,11 @@ export const AutoLoanForm: React.FC<IAutoLoanProps> = (props) => {
           />
         );
       })}
-      <div className="row">
-        <Button
-          className="primary-button"
-          onClick={() => props.onSubmit(state)}
-          disabled={!isValidForm(state)}
-        >
-          Submit
-        </Button>
-      </div>
+      <Button
+        onClick={() => props.onSubmit(state)}
+        isDisabled={!isValidForm(state)}
+        text={"Submit"}
+      />
     </div>
   );
 };

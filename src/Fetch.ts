@@ -1,34 +1,29 @@
 import { loanDenial } from "./Constants";
 import { AutoLoanApplication, LoanApplicationResponse } from "./Types";
-import { canCustomerAffordLoan, isValidCreditScore } from "./Utils";
+import { determineLoanApproval } from "./Utils";
 
-function mockEndpoint(): Promise<Partial<Response>> {
-  const yay: Partial<Response> = {
-    ok: true,
-    status: 200,
-  };
-  const boo: Partial<Response> = {
-    ok: false,
-    status: 401,
-  };
-
-  return Promise.resolve(yay);
-}
-
-export function autoLoan(
+export function mockEndpoint(
   loan: AutoLoanApplication
-): Promise<LoanApplicationResponse> {
-  if (
-    !isValidCreditScore(loan.creditScore) ||
-    !canCustomerAffordLoan(loan.income, loan.purchacePrice)
-  ) {
-    return Promise.resolve({
-      approved: false,
-      message: loanDenial,
-    });
+): Promise<Partial<Response>> {
+  if (loan.purchacePrice && loan.purchacePrice > 1000000) {
+    // bad response if a million dollar vehicle
+    const badRequest: Partial<Response> = {
+      ok: false,
+      status: 400,
+      json: () =>
+        Promise.resolve({
+          approved: false,
+          message: loanDenial,
+        }),
+    };
+    return Promise.resolve(badRequest);
   } else {
-    return Promise.resolve({
-      approved: true,
-    });
+    // loan may still be denied, but its a valid request
+    const success: Partial<Response> = {
+      ok: true,
+      status: 200,
+      json: () => Promise.resolve(determineLoanApproval(loan)),
+    };
+    return Promise.resolve(success);
   }
 }

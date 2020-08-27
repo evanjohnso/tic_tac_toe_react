@@ -60,8 +60,20 @@ ul {
   flex-direction: row;
 }
 
+.topMargin {
+  margin-top: 10px;
+}
+
 .primary-button {
   background-color: #6dbcdb !important;
   color: white !important;
-  width: 30px !important;
+}
+
+.muiPaper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 20px;
+  height: 400px;
+  width: 50%;
 }

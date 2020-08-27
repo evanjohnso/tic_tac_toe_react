@@ -5,7 +5,7 @@ interface ISliderProps {
   onChange: (val: number) => void;
 }
 
-const creditScore = {
+export const creditScore = {
   lowerBound: 300,
   upperBound: 850,
 };
